@@ -194,7 +194,12 @@ def load_encoder(enc_name, device, weights_root, private_weights_root):
     encoder.to(device)
     return encoder, img_transforms, enc_config
 
-def predict_single_split(train_split, test_split, args, save_dir, dataset_name, lazy_enc, device, precision, source_dataroot):
+def predict_single_split(train_split, test_split, 
+                         args, save_dir, 
+                         dataset_name, 
+                         lazy_enc, device, precision, 
+                         source_dataroot):
+    
     if not os.path.isfile(train_split):
         train_split = os.path.join(source_dataroot, 'splits', train_split)
     if not os.path.isfile(test_split):
