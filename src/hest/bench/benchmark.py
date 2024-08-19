@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.multiprocessing
+from torch.utils.data import DataLoader
 import yaml
 from hestcore.segmentation import get_path_relative
 from loguru import logger
@@ -54,9 +55,12 @@ parser.add_argument('--gene_list', type=str, default='var_50genes.json')
 parser.add_argument('--method', type=str, default='ridge')
 parser.add_argument('--alpha', type=float, default=None)
 parser.add_argument('--kfold', action='store_true', default=False)
+parser.add_argument('--gene_padding', action='store_true', default=False)
 parser.add_argument('--benchmark_encoders', action='store_true', default=False)
 parser.add_argument('--normalize', type=bool, default=True)
 parser.add_argument('--dimreduce', type=str, default=None, help='whenever to perform dimensionality reduction before linear probing, can be "PCA" or None')
+parser.add_argument('--save_assets', action='store_true', default=False)
+parser.add_argument('--assets_dir', type=str, default='/Users/tianyuhan/Documents/GitHub/HEST/inputs')
 parser.add_argument('--latent_dim', type=int, default=256, help='dimensionality reduction latent dimension')
 parser.add_argument('--encoders', nargs='+', help='All the encoders to benchmark', default=[])
 parser.add_argument('--datasets', nargs='+', help='Datasets from bench_data_root to use during benchmark', default=['*'])
@@ -244,14 +248,22 @@ def predict_single_split(train_split, test_split, args, save_dir, dataset_name, 
             expr_path = os.path.join(bench_data_root, split.iloc[i]['expr_path'])
             assets, _ = read_assets_from_h5(embed_path)
             barcodes = assets['barcodes'].flatten().astype(str).tolist()
-            adata = load_adata(expr_path, genes=genes, barcodes=barcodes, normalize=args.normalize)
+            adata, overlap_genes = load_adata(expr_path, 
+                               genes=genes, barcodes=barcodes, 
+                               normalize=args.normalize, 
+                               gene_padding=args.gene_padding)
             assets['adata'] = adata.values
+            assets['overlap genes'] = overlap_genes
             split_assets = merge_dict(split_assets, assets)
         for key, val in split_assets.items(): 
             split_assets[key] = np.concatenate(val, axis=0)
         
         all_split_assets[split_key] = split_assets  
         logger.info(f"Loaded {split_key} split with {len(split_assets['embeddings'])} samples: {split_assets['embeddings'].shape}")
+    
+    if args.save_assets:
+        with open(os.path.join(args.assets_dir, 'assets.json'), 'w') as f:
+            json.dump(all_split_assets, f, indent=4)
     
     X_train, y_train = all_split_assets['train']['embeddings'], all_split_assets['train']['adata']
     X_test, y_test = all_split_assets['test']['embeddings'], all_split_assets['test']['adata']

@@ -34,12 +34,20 @@ def normalize_adata(adata: sc.AnnData, smooth=False) -> sc.AnnData:
 
     return filtered_adata
 
-def load_adata(expr_path, genes = None, barcodes = None, normalize=False):
+def load_adata(expr_path, genes = None, barcodes = None, normalize=False, gene_padding=False):
     adata = sc.read_h5ad(expr_path)
+    overlap_genes = np.intersect1d(adata.var_names, genes)
     if barcodes is not None:
         adata = adata[barcodes]
+    if gene_padding: # padding with zeros for missing genes
+        missing_genes = np.setdiff1d(genes, overlap_genes)
+        adata = adata[:, overlap_genes]
+        adata_df = adata.to_df()
+        for missing_gene in missing_genes:
+            adata_df[missing_gene] = 0
+        adata = sc.AnnData(adata_df)
     if genes is not None:
         adata = adata[:, genes]
     if normalize:
         adata = normalize_adata(adata)
-    return adata.to_df()
+    return adata.to_df(), overlap_genes
