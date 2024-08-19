@@ -44,3 +44,5 @@ datasets: [
 ]
 
 #dimreduce: "PCA" 
+save_assets: True 
+gene_padding: True
