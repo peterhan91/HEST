@@ -1,5 +1,5 @@
 # directory containing the data for each task
-bench_data_root: 'bench_data'
+bench_data_root: '/home/than/.cache/huggingface/hub/datasets--MahmoodLab--hest-bench/snapshots/d04c8a09d5e3991cc1105e7c1b925bbc7025ae7c'
 
 # directory where benchmark results will be dumped
 results_dir: 'ST_pred_results'
@@ -8,7 +8,7 @@ results_dir: 'ST_pred_results'
 embed_dataroot: 'ST_data_emb'
 
 # directory to the model weights root
-weights_root: 'fm_v1'
+weights_root: '/home/than/.cache/huggingface/hub/datasets--MahmoodLab--hest-bench/snapshots/d04c8a09d5e3991cc1105e7c1b925bbc7025ae7c/fm_v1/'
 
 # inference parameters
 batch_size: 128
@@ -18,8 +18,8 @@ num_workers: 1
 encoders: [
   #"plip",
   #"uni_v1", # uncomment after requesting the weights
-  "resnet50",
-  #"ctranspath",
+  #"resnet50",
+  "ctranspath",
   #"phikon",
   #"remedis", # uncomment after requesting the weights
   #"conch_v1", # uncomment after requesting the weights

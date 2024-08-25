@@ -23,6 +23,7 @@ tests/assets
 config
 tests/output_tests
 tissue_seg
+*.ipynb
 
 results
 atlas
